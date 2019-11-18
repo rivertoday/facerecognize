@@ -5,7 +5,9 @@ import requests
 import json
 import cv2
 import numpy as np
+import time
 from django.http import HttpResponse
+from django.http import FileResponse, Http404
 from baiduface.settings import BASE_DIR
 from .myutils import diagnoselib
 
@@ -23,7 +25,7 @@ def cropTongue(srcfile):
     tongues = tongueCascade.detectMultiScale(
         gray,
         scaleFactor=1.38,  # 该参数需要根据自己训练的模型进行调参
-        minNeighbors=4,  # minNeighbors控制着误检测，默认值为3表明至少有3次重叠检测，我们才认为人脸确实存
+        minNeighbors=1,  # minNeighbors控制着误检测，默认值为3表明至少有3次重叠检测，我们才认为舌头确实存在
         minSize=(20, 20),  # 寻找舌头的最小区域。设置这个参数过大，会以丢失小物体为代价减少计算量。
         flags=cv2.IMREAD_GRAYSCALE
     )
@@ -31,10 +33,10 @@ def cropTongue(srcfile):
     if len(tongues) > 0:
         for tongueRect in tongues:
             x, y, w, h = tongueRect
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 69, 255), 2)
+            #cv2.rectangle(img, (x, y), (x + w, y + h), (0, 69, 255), 2)
             cropImg = img[y:(y + h), x:(x + w)]  # 获取感兴趣区域
-            cv2.imwrite(srcfile + "_crop.bmp", cropImg)  # 保存到指定目录
-            return srcfile + "_crop.bmp"
+            cv2.imwrite(srcfile + "_crop.jpg", cropImg)  # 保存到指定目录
+            return srcfile + "_crop.jpg"
     else:
         return srcfile
 
@@ -44,12 +46,14 @@ def diagnose(request):
     # First, get the uploaded image profile
     dir = os.path.join(os.path.join(BASE_DIR, 'upload'), 'tongues')
     myFile = None
+    tonguefilename = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
+    tonguefilename = tonguefilename + ".jpg"
     if request.method == 'POST':
         if request.FILES:
             for i in request.FILES:
                 myFile = request.FILES[i]
             if myFile:
-                destination = open(os.path.join(dir, myFile.name), 'wb+')
+                destination = open(os.path.join(dir, tonguefilename), 'wb+')
                 for chunk in myFile.chunks():
                     destination.write(chunk)
                 destination.close()
@@ -77,7 +81,7 @@ def diagnose(request):
     ################################
     # Third, detect the tongue part of the image, and crop it
     # then make base64 encode the uploaded image
-    srcimg = os.path.join(dir, myFile.name)
+    srcimg = os.path.join(dir, tonguefilename)
     dstimg = cropTongue(srcimg)
 
     f = open(dstimg, 'rb')
@@ -107,6 +111,7 @@ def diagnose(request):
                 rdata['score'] = score
                 rdata['tongueid'] = tongueid
                 rdata['description'] = diagnoselib[tongueid]
+                rdata['tongueimg'] = tonguefilename + "_crop.jpg"
                 print(">>>rdata:%s"%rdata)
                 return HttpResponse(json.dumps(rdata))
             else:
@@ -114,6 +119,7 @@ def diagnose(request):
                 rdata['score'] = score
                 rdata['tongueid'] = tongueid
                 rdata['description'] = diagnoselib[tongueid]
+                rdata['tongueimg'] = tonguefilename + "_crop.jpg"
                 print(">>>rdata:%s" % rdata)
                 return HttpResponse(json.dumps(rdata))
         else:
@@ -122,3 +128,22 @@ def diagnose(request):
             return HttpResponse(json.dumps(rdata))
     else:
         return HttpResponse(MY_ERROR_SEARCHFAIL)
+
+def tonguedownload(request):
+    filename = request.GET.get("name")
+    dir = os.path.join(os.path.join(BASE_DIR, 'upload'), 'tongues')
+    tonguename = os.path.join(dir, filename)
+
+    ext = os.path.basename(tonguename).split('.')[-1].lower()
+    if ext in ['jpg', 'JPG', 'jpeg', 'JPEG']:
+        try:
+            file = open(tonguename, 'rb')
+            response = FileResponse(file)
+            response['Content-Type'] = 'image/jpeg'
+            #response['Content-Type'] = 'application/octet-stream'
+            #response['Content-Disposition'] = 'attachment; filename=%s' % filename
+            return response
+        except Exception:
+            return Http404
+    else:
+        return Http404

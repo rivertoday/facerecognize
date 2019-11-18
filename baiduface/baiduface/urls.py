@@ -23,4 +23,5 @@ urlpatterns = [
     #path('uploadprofiles/', vfviews.get_user_profiles),
     path('verify/',vfviews.verify),
     path('diagnose/',dtviews.diagnose),
+    path('tonguedownload/',dtviews.tonguedownload)
 ]
