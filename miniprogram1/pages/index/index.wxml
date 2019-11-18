@@ -9,7 +9,9 @@
   </view>
   <view class="usermotto">
     <text class="user-motto">{{motto}}</text>
-    <button type="primary" bindtap="openCamera">打开摄像头</button>
+    <button type="primary" bindtap="openCamera">人脸识别</button>
+    <text class="user-motto">{{motto}}</text>
+    <button type="primary" bindtap="openDiagnose">试试舌诊</button>
   </view>
 
 </view>

@@ -16,9 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from verifyface import views as vfviews
+from diagtongue import views as dtviews
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    #path('uploadprofiles/', vfviews.get_user_profiles),
     path('verify/',vfviews.verify),
-    path('uploadprofiles/', vfviews.get_user_profiles),
+    path('diagnose/',dtviews.diagnose),
 ]

@@ -20,6 +20,11 @@ Page({
       url: '/pages/mycamera/camera?title=camera'
     })
   },
+  openDiagnose: function () {
+    wx.navigateTo({
+      url: '/pages/mydiagnose/mydiagnose?title=mydiagnose'
+    })
+  },
   onLoad: function () {
     if (app.globalData.userInfo) {
       this.setData({
