@@ -32,10 +32,10 @@ Page({
                 url: 'http://10.17.1.161:8000/tonguedownload?name='+json["tongueimg"], //仅为示例，并非真实的资源
                 success (dres) {
                   console.log(dres)
-                  console.log(">>>" + dres.tempImagePath)
+                  console.log(">>>" + dres.tempFilePath)
                   if (dres.statusCode === 200) {
                     thisBlock.setData({
-                      tongueimg: dres.tempImagePath
+                      tongueimg: dres.tempFilePath
                     })
                   }
                 }
@@ -51,10 +51,10 @@ Page({
                 url: 'http://10.17.1.161:8000/tonguedownload?name=' + json["tongueimg"], //仅为示例，并非真实的资源
                 success (dres) {
                   console.log(dres)
-                  console.log(">>>" + dres.tempImagePath)
+                  console.log(">>>" + dres.tempFilePath)
                   if (dres.statusCode === 200) {
                     thisBlock.setData({
-                      tongueimg: dres.tempImagePath
+                      tongueimg: dres.tempFilePath
                     })
                   }
                 }
