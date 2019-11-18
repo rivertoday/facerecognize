@@ -1,22 +1,24 @@
 // pages/mydiagnose/mydiagnose.js
 Page({
   diagnoseTongue() {
+    var thisBlock = this
     const ctx = wx.createCameraContext()
     ctx.takePhoto({
       quality: 'high',
       success: (res) => {
-        this.setData({
-          src: res.tempImagePath
+        thisBlock.setData({
+          src: res.tempImagePath,
+          tongueimg: res.tempImagePath
         })
         console.log(res)
         wx.uploadFile({
           //url: 'http://jituan.myvhost.com:8000/diagnose/', //仅为示例，非真实的接口地址 
           url: 'http://10.17.1.161:8000/diagnose/', //仅为示例，非真实的接口地址
-          filePath: this.data.src,
+          filePath: thisBlock.data.src,
           name: 'file',
           success: function (res) {
             var data = res.data
-            var json = JSON.parse(data)
+            var json = JSON.parse(data)            
             console.log(json)
             console.log(json["conclusion"])
             if (json["conclusion"] == "MATCH") {
@@ -29,10 +31,13 @@ Page({
               wx.downloadFile({
                 url: 'http://10.17.1.161:8000/tonguedownload?name='+json["tongueimg"], //仅为示例，并非真实的资源
                 success (dres) {
-                  var that = this
-                  that.setData({
-                    tongueimg: dres.tempImagePath
-                  })
+                  console.log(dres)
+                  console.log(">>>" + dres.tempImagePath)
+                  if (dres.statusCode === 200) {
+                    thisBlock.setData({
+                      tongueimg: dres.tempImagePath
+                    })
+                  }
                 }
               })
             } else if (json["conclusion"] == "NOT LIKE") {
@@ -45,10 +50,13 @@ Page({
               wx.downloadFile({
                 url: 'http://10.17.1.161:8000/tonguedownload?name=' + json["tongueimg"], //仅为示例，并非真实的资源
                 success (dres) {
-                  var that = this
-                  that.setData({
-                    tongueimg: dres.tempImagePath
-                  })
+                  console.log(dres)
+                  console.log(">>>" + dres.tempImagePath)
+                  if (dres.statusCode === 200) {
+                    thisBlock.setData({
+                      tongueimg: dres.tempImagePath
+                    })
+                  }
                 }
               })
             } else {
