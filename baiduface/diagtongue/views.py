@@ -6,10 +6,12 @@ import json
 import cv2
 import numpy as np
 import time
+import datetime
 from django.http import HttpResponse
 from django.http import FileResponse, Http404
 from baiduface.settings import BASE_DIR
-from .myutils import diagnoselib
+from .myutils import diagnoselib, MyToken
+from PIL import Image
 
 MY_ERROR_NOFILE = 'No profile uploaded'
 MY_ERROR_WRONGREQ = 'Wrong request method'
@@ -17,9 +19,10 @@ MY_ERROR_TOKENFAIL = 'Request baidu ai token failed'
 MY_ERROR_SEARCHFAIL = 'Search baidu ai image failed'
 MY_DEBUG_BREAK = 'This is a debug break'
 
+
 def cropTongue(srcfile):
     dir = os.path.join(BASE_DIR, 'cascades')
-    tongueCascade = cv2.CascadeClassifier(os.path.join(dir, 'cascade.xml'))
+    tongueCascade = cv2.CascadeClassifier(os.path.join(dir, 'cascade_20191121.xml'))
     img = cv2.imread(srcfile)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     tongues = tongueCascade.detectMultiScale(
@@ -31,15 +34,21 @@ def cropTongue(srcfile):
     )
 
     if len(tongues) > 0:
+        # for tongueRect in tongues:
+        #     x, y, w, h = tongueRect
+        #     #cv2.rectangle(img, (x, y), (x + w, y + h), (0, 69, 255), 2)
+        #     cropImg = img[y:(y + h), x:(x + w)]  # 获取感兴趣区域
+        #     cv2.imwrite(srcfile + "_crop.jpg", cropImg)  # 保存到指定目录
+        #     return srcfile + "_crop.jpg"
         for tongueRect in tongues:
             x, y, w, h = tongueRect
-            #cv2.rectangle(img, (x, y), (x + w, y + h), (0, 69, 255), 2)
-            cropImg = img[y:(y + h), x:(x + w)]  # 获取感兴趣区域
-            cv2.imwrite(srcfile + "_crop.jpg", cropImg)  # 保存到指定目录
-            return srcfile + "_crop.jpg"
+            box1 = (x, y, x + w, y + h)  # 设置图像裁剪区域
+        pilImgage = Image.open(srcfile)  # 使用PIL来编辑图片
+        cropImage = pilImgage.crop(box1)  # 图像裁剪--根据识别出的特征坐标剪切
+        cropImage.save(srcfile + "_crop.jpg")
+        return srcfile + "_crop.jpg"
     else:
         return srcfile
-
 
 
 def diagnose(request):
@@ -65,18 +74,34 @@ def diagnose(request):
     ################################
     # Second, get the authenication token
     # client_id 为官网获取的AK， client_secret 为官网获取的SK
-    app_id = 17769587
-    client_id = "3HoWzpoeONGFQasM7gfkPGv3"
-    client_secret = "aQCS81oGIZSiYOoz7RRZCgIWl85EzA1i"
-    access_token = ''
-    host = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=' + client_id + '&client_secret=' + client_secret
-    print(">>>REQ HOST: %s" % host)
-    response = requests.get(host)
-    if response:
-        print("TOKEN request: %s" % (response.json()))
-        access_token = response.json()["access_token"]
-    else:
-        return HttpResponse(MY_ERROR_TOKENFAIL)
+    format_pattern = "%Y-%m-%d %H:%M:%S"
+    if (MyToken.BAIDUTOKEN_EXPIRE != "INIT"):
+        cur_time = datetime.datetime.now()
+        cur_time = cur_time.strftime(format_pattern)
+        difference = (datetime.datetime.strptime(MyToken.BAIDUTOKEN_EXPIRE, format_pattern) - datetime.datetime.strptime(cur_time, format_pattern))
+        if (difference.seconds > 0):
+            access_token = MyToken.BAIDUTOKEN
+            print("TOKEN taken from variable: %s" % access_token)
+        else:
+            MyToken.BAIDUTOKEN = "INIT"
+
+    if (MyToken.BAIDUTOKEN == "INIT"):
+        app_id = 17769587
+        client_id = "3HoWzpoeONGFQasM7gfkPGv3"
+        client_secret = "aQCS81oGIZSiYOoz7RRZCgIWl85EzA1i"
+        access_token = ''
+        host = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=' + client_id + '&client_secret=' + client_secret
+        print(">>>REQ HOST: %s" % host)
+        response = requests.get(host)
+        if response:
+            print("TOKEN request: %s" % (response.json()))
+            access_token = response.json()["access_token"]
+            expires_in = response.json()["expires_in"]
+            tm = datetime.datetime.now()
+            MyToken.BAIDUTOKEN_EXPIRE = (tm + datetime.timedelta(seconds=expires_in)).strftime(format_pattern)
+            MyToken.BAIDUTOKEN = access_token
+        else:
+            return HttpResponse(MY_ERROR_TOKENFAIL)
 
     ################################
     # Third, detect the tongue part of the image, and crop it

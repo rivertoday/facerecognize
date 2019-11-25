@@ -31,4 +31,9 @@ diagnoselib = {
 "028":"舌象特征：舌苔呈现黑色。临床意义：主里证，或为热极，或为寒盛。",
 }
 
+class MyToken(object):
+    BAIDUTOKEN_EXPIRE = "INIT"
+    BAIDUTOKEN = "INIT"
+
+
 
