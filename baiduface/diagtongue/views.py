@@ -5,6 +5,7 @@ import requests
 import json
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 import time
 import datetime
 from django.http import HttpResponse
@@ -49,6 +50,16 @@ def cropTongue(srcfile):
         return srcfile + "_crop.jpg"
     else:
         return srcfile
+
+def equalizeImage(srcfile):
+    underexpose = cv2.imread(srcfile)
+    equalizeUnder = np.zeros(underexpose.shape, underexpose.dtype)
+    equalizeUnder[:, :, 0] = cv2.equalizeHist(underexpose[:, :, 0])
+    equalizeUnder[:, :, 1] = cv2.equalizeHist(underexpose[:, :, 1])
+    equalizeUnder[:, :, 2] = cv2.equalizeHist(underexpose[:, :, 2])
+    #plt.imshow(equalizeUnder)
+    cv2.imwrite(srcfile + "_equalize.jpg", equalizeUnder)
+    return srcfile + "_equalize.jpg"
 
 
 def diagnose(request):
@@ -107,7 +118,8 @@ def diagnose(request):
     # Third, detect the tongue part of the image, and crop it
     # then make base64 encode the uploaded image
     srcimg = os.path.join(dir, tonguefilename)
-    dstimg = cropTongue(srcimg)
+    cropimg = cropTongue(srcimg)
+    dstimg = equalizeImage(cropimg)
 
     f = open(dstimg, 'rb')
     img_raw_data = f.read()

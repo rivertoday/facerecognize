@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/mycamera/camera",
     "pages/logs/logs",
-    "pages/mydiagnose/mydiagnose"
+    "pages/mydiagnose/mydiagnose",
+    "pages/diagresult/diagresult"
   ],
   "window": {
     "backgroundTextStyle": "light",

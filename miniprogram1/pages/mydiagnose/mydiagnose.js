@@ -6,74 +6,17 @@ Page({
     ctx.takePhoto({
       quality: 'high',
       success: (res) => {
-        thisBlock.setData({
-          src: res.tempImagePath,
-          tongueimg: res.tempImagePath
-        })
+        console.log(">>>Following is the resource info gotten from takePhoto:")
         console.log(res)
-        wx.uploadFile({
-          //url: 'http://jituan.myvhost.com:8000/diagnose/', //仅为示例，非真实的接口地址 
-          url: 'http://10.17.1.161:8000/diagnose/', //仅为示例，非真实的接口地址
-          filePath: thisBlock.data.src,
-          name: 'file',
-          success: function (res) {
-            var data = res.data
-            var json = JSON.parse(data)            
-            console.log(json)
-            console.log(json["conclusion"])
-            if (json["conclusion"] == "MATCH") {
-              wx.showModal({
-                title: "提示",
-                content: "我们找到了类似的舌头！\r\n识别分数为：" + json["score"] +"\r\n参考说明："+json["description"],
-                showCancel: false,
-                confirmText: "确定"
-              })
-              wx.downloadFile({
-                url: 'http://10.17.1.161:8000/tonguedownload?name='+json["tongueimg"], //仅为示例，并非真实的资源
-                success (dres) {
-                  console.log(dres)
-                  console.log(">>>" + dres.tempFilePath)
-                  if (dres.statusCode === 200) {
-                    thisBlock.setData({
-                      tongueimg: dres.tempFilePath
-                    })
-                  }
-                }
-              })
-            } else if (json["conclusion"] == "NOT LIKE") {
-              wx.showModal({
-                title: "提示",
-                content: "抱歉，找到的舌头可能不像！\r\n识别分数为：" + json["score"] + "\r\n参考说明：" + json["description"],
-                showCancel: false,
-                confirmText: "确定"
-              })
-              wx.downloadFile({
-                url: 'http://10.17.1.161:8000/tonguedownload?name=' + json["tongueimg"], //仅为示例，并非真实的资源
-                success (dres) {
-                  console.log(dres)
-                  console.log(">>>" + dres.tempFilePath)
-                  if (dres.statusCode === 200) {
-                    thisBlock.setData({
-                      tongueimg: dres.tempFilePath
-                    })
-                  }
-                }
-              })
-            } else {
-              wx.showModal({
-                title: "警告",
-                content: "对不起，找不到能匹配的舌头",
-                showCancel: false,
-                confirmText: "确定"
-              })
-            }
-
-          },
-          fail: function (res) {
-            console.log(res)
-          }
-        })
+        console.log(res.tempImagePath)
+        wx.setStorageSync("tongueimg",res.tempImagePath);
+        thisBlock.setData({
+          camera: false,
+        })        
       }
+    })
+    wx.navigateTo({
+      url: '/pages/diagresult/diagresult?title=diagresult'
     })
   },
 
@@ -81,14 +24,22 @@ Page({
    * 页面的初始数据
    */
   data: {
-    tongueimg:"",
+    camera: true,
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    var thisBlock = this
+    wx.getSystemInfo({
+      success(res) {
+        thisBlock.setData({
+          windowHeight: res.windowHeight - 80,
+          camera: true
+        })
+      }
+    })
   },
 
   /**

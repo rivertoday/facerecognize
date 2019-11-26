@@ -1,0 +1,12 @@
+<!--pages/diagresult/diagresult.wxml-->
+<view class='imagesize'>
+<image mode="widthFix" src="{{rettongueimg}}" class='in-image'></image>
+</view>
+<view>
+<label class="label-2__text"><text>{{hintinfo}}</text></label>
+</view>
+<view class="imagesize">
+  <scroll-view scroll-y="true" style="height: 600rpx;" bindscrolltoupper="upper" bindscrolltolower="lower" bindscroll="scroll" scroll-top="{{scrollTop}}">
+    <textarea maxlength="-1" class="section" placeholder="诊断结论" name="description" value="{{description}}" focus="true"  />
+  </scroll-view>
+</view>
