@@ -118,8 +118,9 @@ def diagnose(request):
     # Third, detect the tongue part of the image, and crop it
     # then make base64 encode the uploaded image
     srcimg = os.path.join(dir, tonguefilename)
-    cropimg = cropTongue(srcimg)
-    dstimg = equalizeImage(cropimg)
+    #cropimg = cropTongue(srcimg)
+    #dstimg = equalizeImage(cropimg)
+    dstimg = cropTongue(srcimg)
 
     f = open(dstimg, 'rb')
     img_raw_data = f.read()

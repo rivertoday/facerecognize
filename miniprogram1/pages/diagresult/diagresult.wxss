@@ -1,10 +1,11 @@
 /* pages/diagresult/diagresult.wxss */
-.label-1, .label-2{
-    margin-bottom: 15px;
-}
-.label-1__text, .label-2__text {
-    display: inline-block;
-    vertical-align: middle;
+
+.label_hint {
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 15px;
+  font-size: 50rpx;
+  color: red;
 }
 .imagesize{
  display:flex;
