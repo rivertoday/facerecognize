@@ -21,3 +21,36 @@
   border-radius: 98rpx;
   border: 0; 
 }
+
+.cover-1{
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 150rpx;
+  background-color: #dedcdc;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 60rpx;
+  left: 300rpx;
+}
+
+.cover-2{
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 110rpx;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color:#da2121;
+  font-size: 32rpx;
+}
+
+.cover-image{
+  position: absolute;
+  top: 60rpx;
+  right:40rpx;
+}

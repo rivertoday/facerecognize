@@ -1,5 +1,16 @@
 <!-- mydiagnose.wxml -->
-<camera device-position="front" wx:if="{{camera}}" flash="off" binderror="error" style="width: 100%; height: {{windowHeight}}px;">
+<camera device-position="{{device?'back':'front'}}" wx:if="{{camera}}" flash="off" binderror="error" style="width: 100%; height: {{windowHeight}}px;">
+  <cover-view class="cover-1" bindtap="diagnoseTongue">
+    <cover-view class="cover-2">
+      
+    </cover-view>
+  </cover-view>
+  <cover-image
+    class="cover-image"
+    src="../../images/toast.png"
+    style="width:100rpx;height:85rpx;"
+    bindtap="devicePosition">
+  </cover-image>
 </camera>
 <button type="primary" bindtap="diagnoseTongue">
   <!--<image class='btnImg' src='../../images/paizhao.png'></image>-->

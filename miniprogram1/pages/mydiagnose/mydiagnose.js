@@ -1,5 +1,14 @@
 // pages/mydiagnose/mydiagnose.js
 Page({
+  // 切换相机前后置摄像头
+  devicePosition() {
+    var thisBlock = this
+    thisBlock.setData({
+      device: !thisBlock.data.device,
+    })
+    console.log("当前相机摄像头为:", thisBlock.data.device ? "后置" : "前置");
+  },
+
   diagnoseTongue() {
     var thisBlock = this
     const ctx = wx.createCameraContext()
@@ -25,6 +34,7 @@ Page({
    */
   data: {
     camera: true,
+    device: true,
   },
 
   /**
@@ -40,7 +50,7 @@ Page({
         })
       }
     })
-  },
+  },  
 
   /**
    * 生命周期函数--监听页面初次渲染完成
